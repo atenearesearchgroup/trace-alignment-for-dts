@@ -65,10 +65,10 @@ import java.util.List;
  */
 public abstract class PairwiseAlignmentAlgorithmTrace
 {
-	protected static final String TRACE_DT = "traceDT";
-	protected static final String TRACE_PT = "tracePT";
-	protected static final String ORIGINAL = "original";
-	protected static final String ALIGNED = "aligned";
+	protected static final String TRACE_DT = "DT";
+	protected static final String TRACE_PT = "PT";
+	protected static final String ORIGINAL = "or";
+	protected static final String ALIGNED = "al";
 	protected static final String OPERATION = "operationApplied";
 	protected static final String MATCH = "Match";
 	protected static final String MISMATCH = "Mismatch";

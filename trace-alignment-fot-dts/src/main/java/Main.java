@@ -11,28 +11,35 @@ import java.util.List;
 
 public class Main {
     private static final String CURRENT_DIR = System.getProperty("user.dir") + "/trace-alignment-fot-dts";
-    private static final String INPUT_DIR = "/datafiles/input/";
-    private static final String OUTPUT_DIR = "/datafiles/output/";
-    private static final String CONTINUOUS = "continuous/";
+    private static final String INPUT_DIR = "/src/main/resources/input/";
+    private static final String OUTPUT_DIR = "/src/main/resources/output/";
 
     public static void main(String[] args) throws Exception {
         NeedlemanWunschTrace nw = new NeedlemanWunschTrace();
 
-        String continuousPath = CURRENT_DIR + INPUT_DIR + CONTINUOUS;
+        String inputPath = CURRENT_DIR + INPUT_DIR;
+        String inputNxj = inputPath + "nxj/";
 
-        List<String[]> seqDT = CSVUtil.readAll(continuousPath + "delayDT.csv", ',');
-        List<String[]> seqPT = CSVUtil.readAll(continuousPath + "delayPT.csv", ',');
+        String DTFile = "LegoCarSyntheticTraces-1lapcar2.csv";
+        String PTFile = "LegoCarSyntheticTraces-1lapcar2-accel-PT.csv";
+        double tolerance = 0.5;
+
+        List<String[]> seqDT = CSVUtil.readAll(inputNxj + DTFile, ',');
+        List<String[]> seqPT = CSVUtil.readAll(inputNxj + PTFile, ',');
 
         Trace traceDT = new Trace(seqDT);
         Trace tracePT = new Trace(seqPT);
-        nw.loadSequences(tracePT, traceDT);
+        nw.loadSequences(traceDT, tracePT);
 
-        double tolerance = 0.01;
-        ScoringDistance scoringDistance = new ScoringDistance(2, -3, -1, tolerance);
+        ScoringDistance scoringDistance = new ScoringDistance(1, -1, 0, tolerance);
         nw.setScoringScheme(scoringDistance);
 
         List<String[]> alignment = nw.getPairwiseAlignment();
+        System.out.println("Score " + tolerance + "=> " + nw.getScore());
 
-        CSVUtil.writeAll(alignment, CURRENT_DIR + OUTPUT_DIR + "delay_result_" + tolerance + ".csv");
+        CSVUtil.writeAll(alignment,
+                CURRENT_DIR + OUTPUT_DIR + "nxj/" + DTFile.substring(0, DTFile.length()-4)
+                        + PTFile.substring(PTFile.indexOf("-"), PTFile.length()-4) + "-" + tolerance +
+                        ".csv");
     }
 }

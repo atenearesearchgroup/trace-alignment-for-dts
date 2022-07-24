@@ -170,8 +170,8 @@ public class NeedlemanWunschTrace extends PairwiseAlignmentAlgorithmTrace
 	{
 		int r, c, rows, cols, ins, del, sub;
 
-		rows = trace1.getSnapshots().size();
-		cols = trace2.getSnapshots().size();
+		rows = trace1.getSnapshots().size() + 1;
+		cols = trace2.getSnapshots().size() + 1;
 
 		matrix = new int [rows][cols];
 
@@ -243,26 +243,23 @@ public class NeedlemanWunschTrace extends PairwiseAlignmentAlgorithmTrace
 		int numberOfAttributes = trace1.getSnapshots().get(0).getAttributes().size() + 1;
 
 		// First row with general headers
-		String[] generalHeaders = new String[numberOfAttributes*4+3];
-		generalHeaders[0] = TRACE_PT + "_" + ORIGINAL;
-		generalHeaders[numberOfAttributes] = TRACE_DT + "_" + ORIGINAL;
-		generalHeaders[numberOfAttributes*2+1] = TRACE_PT + "_" + ALIGNED;
-		generalHeaders[numberOfAttributes*3+2] = TRACE_DT + "_" + ALIGNED;
-		result.add(generalHeaders);
+		String[] generalHeaders =  {
+			TRACE_DT + ORIGINAL, TRACE_PT + ORIGINAL, TRACE_DT + ALIGNED, TRACE_PT + ALIGNED
+		};
 
 		// Second row with attributes' headers
 		String[] attributesHeaders = new String[numberOfAttributes*4+3];
 
 		for(int i = 0; i < 4 ; i++){
 			int j = 0;
-			if(i == 3) { j += 2; }
+			if(i == 3) { j += 1; }
 			if(i == 2){
 				j++;
 			}
-			attributesHeaders[j+numberOfAttributes*i] = "timestamp";
+			attributesHeaders[j+numberOfAttributes*i] = generalHeaders[i] + "-" + "timestamp";
 			j++;
 			for(Attribute att : trace1.getSnapshots().get(0).getAttributes().keySet()){
-				attributesHeaders[j+numberOfAttributes*i] = att.getName();
+				attributesHeaders[j+numberOfAttributes*i] = generalHeaders[i] + "-" + att.getName();
 				j++;
 			}
 		}
@@ -297,16 +294,15 @@ public class NeedlemanWunschTrace extends PairwiseAlignmentAlgorithmTrace
 		while ((r > 0) || (c > 0))
 		{
 			List<String> row = new ArrayList<>();
-			if (c > 0)
-				if (matrix[r][c] == matrix[r][c-1] + scoreInsertion())
-				{
+			if (c > 0) {
+				if (matrix[r][c] == matrix[r][c - 1] + scoreInsertion()) {
 					// insertion was used
-					for(int i = 0; i < snapshotsTrace1.get(0).getValues().size() + 1; i++){
+					for (int i = 0; i < snapshotsTrace1.get(0).getValues().size() + 1; i++) {
 						row.add(GAP_CHARACTER);
 					}
-					row.add(EMPTY_SPACE);
-					row.add(String.valueOf(snapshotsTrace2.get(c).getTimestamp()));
-					row.addAll(snapshotsTrace2.get(c).getValues());
+					// row.add(EMPTY_SPACE);
+					row.add(String.valueOf(snapshotsTrace2.get(c-1).getTimestamp()));
+					row.addAll(snapshotsTrace2.get(c-1).getValues());
 					c = c - 1;
 					row.add(INSERTION);
 
@@ -314,25 +310,26 @@ public class NeedlemanWunschTrace extends PairwiseAlignmentAlgorithmTrace
 					partialResult.add(0, row.toArray(new String[row.size()]));
 					continue;
 				}
+			}
 
 			if ((r > 0) && (c > 0))
 			{
-				sub = scoreSubstitution(trace1.snapshotAt(r), trace2.snapshotAt(c));
+				sub = scoreSubstitution(trace1.snapshotAt(r-1), trace2.snapshotAt(c-1));
 
 				if (matrix[r][c] == matrix[r-1][c-1] + sub)
 				{
 					// substitution was used
-					row.add(String.valueOf(snapshotsTrace1.get(r).getTimestamp()));
-					row.addAll(snapshotsTrace1.get(r).getValues());
-					if (trace1.snapshotAt(r).equalsAlignment(trace2.snapshotAt(c), this.scoring.getTolerance())){
-						row.add(MATCH_CHARACTER);
-						row.add(String.valueOf(snapshotsTrace2.get(c).getTimestamp()));
-						row.addAll(snapshotsTrace2.get(c).getValues());
+					row.add(String.valueOf(snapshotsTrace1.get(r-1).getTimestamp()));
+					row.addAll(snapshotsTrace1.get(r-1).getValues());
+					if (trace1.snapshotAt(r-1).equalsAlignment(trace2.snapshotAt(c-1), this.scoring.getTolerance())){
+						// row.add(MATCH_CHARACTER);
+						row.add(String.valueOf(snapshotsTrace2.get(c-1).getTimestamp()));
+						row.addAll(snapshotsTrace2.get(c-1).getValues());
 						row.add(MATCH);
 					} else {
-						row.add(EMPTY_SPACE);
-						row.add(String.valueOf(snapshotsTrace2.get(c).getTimestamp()));
-						row.addAll(snapshotsTrace2.get(c).getValues());
+						// row.add(EMPTY_SPACE);
+						row.add(String.valueOf(snapshotsTrace2.get(c-1).getTimestamp()));
+						row.addAll(snapshotsTrace2.get(c-1).getValues());
 						row.add(MISMATCH);
 					}
 					r = r - 1; c = c - 1;
@@ -344,9 +341,9 @@ public class NeedlemanWunschTrace extends PairwiseAlignmentAlgorithmTrace
 			}
 
 			// must be a deletion
-			row.add(String.valueOf(snapshotsTrace1.get(r).getTimestamp()));
-			row.addAll(snapshotsTrace1.get(r).getValues());
-			row.add(EMPTY_SPACE);
+			row.add(String.valueOf(snapshotsTrace1.get(r-1).getTimestamp()));
+			row.addAll(snapshotsTrace1.get(r-1).getValues());
+			// row.add(EMPTY_SPACE);
 			for(int i = 0; i < snapshotsTrace2.get(0).getValues().size() + 1; i++){
 				row.add(GAP_CHARACTER);
 			}
