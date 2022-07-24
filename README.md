@@ -11,8 +11,7 @@ proteins. Our approach adapts this algorithm to align the traces that describe t
 
 ### Alignment
 
-The **methods** regarding the trace alignment are located in: [/trace-alignment-fot-dts/src/main/java/alignment/]
-(https://github.com/atenearesearchgroup/trace-alignment-for-dts/tree/main/trace-alignment-fot-dts/src/main/java/alignment)
+The **methods** regarding the trace alignment are located in: [/trace-alignment-fot-dts/src/main/java/alignment/](https://github.com/atenearesearchgroup/trace-alignment-for-dts/tree/main/trace-alignment-fot-dts/src/main/java/alignment)
 
 The **synthetic traces** used for the alignments are located in: [/trace-alignment-fot-dts/src/main/resources/input/](https://github.com/atenearesearchgroup/trace-alignment-for-dts/tree/main/trace-alignment-fot-dts/src/main/resources/input)
 
