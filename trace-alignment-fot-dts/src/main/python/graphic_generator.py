@@ -1,19 +1,52 @@
 import os
-
+import sys
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas
 import pandas as pd
 import seaborn as sns
 
-if __name__ == "__main__":
-    # Path to output csv files
-    resources_path = os.path.join(os.getcwd(), os.pardir) + "\\resources\\output\\lift\\"
 
-    # Parse csv file to pandas dataframe
-    alignment = pd.read_csv(resources_path + "bajarSubir4plantas_dt2bajarSubir4plantas_pt-0.05.csv")
-    alignment_copy = alignment.copy()
-    for name, _ in alignment.iteritems():
-        alignment[name].update(pd.to_numeric(alignment[name], errors='coerce').fillna(0))
+def _clean_df(df: pandas.DataFrame, columns):
+    cleaned_df = pandas.DataFrame()
+    for c in columns:
+        cleaned_df.insert(0, c, df.loc[:, c], True)
+
+    for name, _ in cleaned_df.iteritems():
+        cleaned_df[name].replace(' ', np.nan, inplace=True)
+        cleaned_df.dropna(subset=[name], inplace=True)
+        cleaned_df[name].update(pd.to_numeric(cleaned_df[name], errors='coerce'))
+
+    return cleaned_df
+
+
+if __name__ == "__main__":
+    # Uncomment to call from Java
+    alignment = pd.read_csv(str(sys.argv[1]))
+    parameter_of_interest = str(sys.argv[2])
+
+    # # Uncomment to call from this script
+    # # 1.- Path to output csv files
+    # resources_path = os.path.join(os.getcwd(), os.pardir) + "\\resources\\output\\lift\\"
+    # # 2.- Name of the input aligned file
+    # alignment = pd.read_csv(resources_path + "bajarSubir4plantas1bajarSubir4plantas2-0.05.csv")
+    # 3.- Dimension to plot against time
+    # parameter_of_interest = "AngleZ(deg)"
+
+    # Columns of interest
+    pt_or_timestamp = "PTor-timestamp"
+    pt_or_interest = "PTor-" + parameter_of_interest
+    dt_or_timestamp = "DTor-timestamp"
+    dt_or_interest = "DTor-" + parameter_of_interest
+
+    pt_al_timestamp = "PTal-timestamp"
+    pt_al_interest = "PTal-" + parameter_of_interest
+    dt_al_timestamp = "DTal-timestamp"
+    dt_al_interest = "DTal-" + parameter_of_interest
+
+    # Separate and clean the dataframe for plotting
+    selected_pt = _clean_df(alignment, [pt_or_timestamp, pt_or_interest])
+    selected_dt = _clean_df(alignment, [dt_or_timestamp, dt_or_interest])
 
     # Set a custom figure size
     plt.figure(figsize=(15, 6))
@@ -25,36 +58,24 @@ if __name__ == "__main__":
 
     # Plot line plot using dataframe columns
     # Physical Twin trajectory
-    sns.lineplot(data=alignment, label="PT", x="PTor-timestamp", y="PTor-acceleration",
+    sns.lineplot(data=selected_pt, label="PT", x=pt_or_timestamp, y=pt_or_interest,
                  marker='o')
     # Digital Twin trajectory
-    ax = sns.lineplot(data=alignment, label="DT", x="DTor-timestamp", y="DTor-acceleration",
+    ax = sns.lineplot(data=selected_dt, label="DT", x=dt_or_timestamp, y=dt_or_interest,
                       marker='o', alpha=0.5)
 
     # Plot alignment with matching points
-    snapshots_a_x = []
-    snapshots_a_y = []
-    snapshots_b_x = []
-    snapshots_b_y = []
-    pt_al_timestamp = "PTal-timestamp"
-    pt_al_distance = "PTal-acceleration"
-    dt_al_timestamp = "DTal-timestamp"
-    dt_al_distance = "DTal-acceleration"
-    for i in range(len(alignment_copy["operationApplied"])):
-        if alignment_copy["operationApplied"][i] == "Match":
-            ax.plot([alignment[pt_al_timestamp][i], alignment[dt_al_timestamp][i]],
-                    [alignment[pt_al_distance][i], alignment[dt_al_distance][i]], color='black', ls=':',
+    for i in range(len(alignment["operationApplied"])):
+        if alignment["operationApplied"][i] == "Match":
+            ax.plot([float(alignment[pt_al_timestamp][i]), float(alignment[dt_al_timestamp][i])],
+                    [float(alignment[pt_al_interest][i]), float(alignment[dt_al_interest][i])], color='black', ls=':',
                     zorder=0)
-            snapshots_a_x.append(alignment[pt_al_timestamp][i])
-            snapshots_a_y.append(alignment[pt_al_distance][i])
-            snapshots_b_x.append(alignment[dt_al_timestamp][i])
-            snapshots_b_y.append(alignment[dt_al_distance][i])
 
     ax.ticklabel_format(style='plain', axis='both')
 
     # Limit the x-axis size for better visualization
     ax.set_title("Trace alignment PT against DT")
-    #ax.set(xlim=(alignment[pt_al_timestamp][0] - 4, alignment[pt_al_timestamp].max()))
+    # ax.set(xlim=(alignment[pt_al_timestamp][0] - 4, alignment[pt_al_timestamp].max()))
     ax.set_xlabel("POSIX Timestamp (seconds)")
 
     # Limit the y-axis size for better visualization
@@ -65,5 +86,5 @@ if __name__ == "__main__":
     ax.legend()
 
     # Show the graphic
-    plt.savefig(resources_path + 'output.pdf')
+    plt.savefig(sys.argv[1].replace(".csv", "") + ".pdf")
     plt.show()
