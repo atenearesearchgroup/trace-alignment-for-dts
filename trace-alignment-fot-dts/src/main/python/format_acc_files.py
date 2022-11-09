@@ -3,12 +3,28 @@ import os
 from src.main.python.util import csv_util, file_util
 
 
+def _add_tolerances(path: str, delim: str, position: int):
+    file_r, reader = csv_util.get_reader(path, delim)
+    input_matrix = list(reader)
+    output = input_matrix[0:position]
+    # output.append([0.05, 0.05, 0.05, 0.1])
+    output.append([0.1, 0.1, 0.1, 0.1, 0.05, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1])
+    output.extend(input_matrix[position:])
+
+    file_r.close()
+
+    file_w, writer = csv_util.get_writer(path, delim)
+    writer.writerows(output)
+    file_w.close()
+
+
 def _preprocess_file(in_path, input_filename, out_path, pattern, substring, delim, position):
     # Processed files will be csv instead of txt
     output_filename = input_filename.replace(".txt", ".csv")
 
     # Replace strings and process the timestamps
     file_util.replace_str(in_path + input_filename, out_path + output_filename, pattern, substring)
+    _add_tolerances(out_path + output_filename, delim, 2)
     csv_util.process_timestamp(out_path + output_filename, delim, position)
 
 

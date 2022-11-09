@@ -8,12 +8,12 @@ import java.util.Map;
 /**
  * @author Paula Munoz
  */
-public class Snapshot {
+public abstract class Snapshot<T> {
 
-    private final long timestamp;
+    private final float timestamp;
     private final Map<Attribute, Object> attributes;
 
-    public Snapshot(Attribute[] attributes, Object[] values, long timestamp) {
+    public Snapshot(Attribute[] attributes, Object[] values, float timestamp) {
         this.timestamp = timestamp;
         this.attributes = new HashMap<>();
         for (int i = 0; i < values.length; i++) {
@@ -21,32 +21,13 @@ public class Snapshot {
         }
     }
 
-    public boolean equalsAlignment(Snapshot b, double tolerance) {
-        boolean equals = true;
-        for (Attribute attribute : attributes.keySet()) {
-            if(attribute.getMaxValue() > 0){
-                double b_value = (Double) b.getAttributes().get(attribute);
-                double this_value = (Double) this.attributes.get(attribute);
-                if (Math.abs(b_value / attribute.getMaxValue()
-                        - this_value / attribute.getMaxValue()) > tolerance) {
-                    equals = false;
-                    break;
-                }
-            } else {
-                if(!b.getAttributes().get(attribute).equals(this.attributes.get(attribute))){
-                    equals = false;
-                    break;
-                }
-            }
-        }
-        return equals;
-    }
+    public abstract T equalsAlignment(Snapshot<T> b, double tolerance);
 
     public Map<Attribute, Object> getAttributes() {
         return attributes;
     }
 
-    public long getTimestamp() {
+    public float getTimestamp() {
         return timestamp;
     }
 

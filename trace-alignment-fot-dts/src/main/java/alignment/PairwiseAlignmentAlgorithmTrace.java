@@ -144,7 +144,7 @@ public abstract class PairwiseAlignmentAlgorithmTrace
 	 * are loaded or a new scoring scheme is set, the <CODE>score_computed</CODE> flag is
 	 * set to false, and this field's value becomes undefined.
 	 */
-	protected int score;
+	protected double score;
 
 	/**
 	 * Flags whether the score of the alignment between the last two loaded sequences has
@@ -310,7 +310,7 @@ public abstract class PairwiseAlignmentAlgorithmTrace
 	 * is not compatible with the loaded sequences
 	 * @see #computeScore
 	 */
-	public int getScore () throws IncompatibleScoringSchemeException
+	public double getScore () throws IncompatibleScoringSchemeException
 	{
 		if (!sequences_loaded)
 			throw new IllegalStateException ("Sequences have not been loaded.");
@@ -382,7 +382,7 @@ public abstract class PairwiseAlignmentAlgorithmTrace
 	 * is not compatible with the loaded sequences
 	 * @see #getScore
 	 */
-	protected abstract int computeScore () throws IncompatibleScoringSchemeException;
+	protected abstract double computeScore () throws IncompatibleScoringSchemeException;
 
 	/**
 	 * Helper method to invoke the <CODE>scoreSubstitution</CODE> method of the scoring
@@ -394,7 +394,7 @@ public abstract class PairwiseAlignmentAlgorithmTrace
 	 * @throws IncompatibleScoringSchemeException if the scoring scheme is not compatible
 	 * with the sequences being aligned
 	 */
-	protected final int scoreSubstitution (Snapshot a, Snapshot b)
+	protected final double scoreSubstitution (Snapshot a, Snapshot b)
 		throws IncompatibleScoringSchemeException
 	{
 		return scoring.scoreSubstitution (a, b);
@@ -408,7 +408,7 @@ public abstract class PairwiseAlignmentAlgorithmTrace
 	 * @throws IncompatibleScoringSchemeException if the scoring scheme is not compatible
 	 * with the sequences being aligned
 	 */
-	protected final int scoreInsertion () throws IncompatibleScoringSchemeException
+	protected final double scoreInsertion () throws IncompatibleScoringSchemeException
 	{
 		return scoring.scoreInsertion ();
 	}
@@ -421,7 +421,7 @@ public abstract class PairwiseAlignmentAlgorithmTrace
 	 * @throws IncompatibleScoringSchemeException if the scoring scheme is not compatible
 	 * with the sequences being aligned
 	 */
-	protected final int scoreDeletion () throws IncompatibleScoringSchemeException
+	protected final double scoreDeletion () throws IncompatibleScoringSchemeException
 	{
 		return scoring.scoreDeletion ();
 	}
@@ -446,7 +446,7 @@ public abstract class PairwiseAlignmentAlgorithmTrace
 	 * @param v3 third value
 	 * @return the larger of <CODE>v1</CODE>, <CODE>v2</CODE> and <CODE>v3</CODE>
 	 */
-	protected final int max (int v1, int v2, int v3)
+	protected final double max (double v1, double v2, double v3)
 	{
 		return (v1 >= v2) ? (Math.max(v1, v3)) : (Math.max(v2, v3));
 	}
@@ -461,7 +461,7 @@ public abstract class PairwiseAlignmentAlgorithmTrace
 	 * @return the larger of <CODE>v1</CODE>, <CODE>v2</CODE> <CODE>v3</CODE> and
 	 * <CODE>v4</CODE>
 	 */
-	protected final int max (int v1, int v2, int v3, int v4)
+	protected final double max (int v1, int v2, int v3, int v4)
 	{
 		int m1 = (Math.max(v1, v2));
 		int m2 = (Math.max(v3, v4));

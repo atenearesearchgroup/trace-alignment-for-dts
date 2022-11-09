@@ -2,7 +2,7 @@ package alignment;
 
 import elements.Snapshot;
 
-public class ScoringDistance extends ScoringSchemeTrace {
+public abstract class ScoringDistance<T> extends ScoringSchemeTrace<T> {
 
     /**
      * Creates a new instance of an scoring scheme. The case of characters is significant
@@ -12,31 +12,21 @@ public class ScoringDistance extends ScoringSchemeTrace {
      * @param mismatch
      * @param gap
      */
-    public ScoringDistance(int match, int mismatch, int gap, double tolerance) {
+    public ScoringDistance(double match, double mismatch, double gap, double tolerance) {
         super(match, mismatch, gap, tolerance);
     }
 
     @Override
-    public int scoreSubstitution(Snapshot a, Snapshot b) throws IncompatibleScoringSchemeException {
-        if(a.equalsAlignment(b, this.getTolerance())){
-            return this.getMatch();
-        } else {
-            return this.getMismatch();
-        }
-    }
+    public abstract double scoreSubstitution(Snapshot<T> a, Snapshot<T> b) throws IncompatibleScoringSchemeException;
 
     @Override
-    public int scoreInsertion() throws IncompatibleScoringSchemeException {
-        return this.getGap();
-    }
+    public abstract double scoreInsertion() throws IncompatibleScoringSchemeException;
 
     @Override
-    public int scoreDeletion() throws IncompatibleScoringSchemeException {
-        return this.getGap();
-    }
+    public abstract double scoreDeletion() throws IncompatibleScoringSchemeException;
 
     @Override
-    public int maxAbsoluteScore() {
+    public double maxAbsoluteScore() {
         return Math.max(Math.abs(this.getMismatch()), Math.max(Math.abs(this.getGap()), this.getMatch()));
     }
 

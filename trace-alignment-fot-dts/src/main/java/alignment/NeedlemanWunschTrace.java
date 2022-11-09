@@ -85,24 +85,24 @@ import java.util.List;
  *
  * This is a modified version from the Original NeoBio Library to use for trace alignment in a DTs context.
  */
-public class NeedlemanWunschTrace extends PairwiseAlignmentAlgorithmTrace
+public abstract class NeedlemanWunschTrace<T> extends PairwiseAlignmentAlgorithmTrace
 {
 	/**
 	 * The first sequence of an alignment.
 	 */
-	protected Trace trace1;
+	protected Trace<T> trace1;
 
 	/**
 	 * The second sequence of an alignment.
 	 */
-	protected Trace trace2;
+	protected Trace<T> trace2;
 
 	/**
 	 * The dynamic programming matrix. Each position (i, j) represents the best score
 	 * between the firsts i characters of <CODE>seq1</CODE> and j characters of
 	 * <CODE>seq2</CODE>.
 	 */
-	protected int[][] matrix;
+	protected double[][] matrix;
 
 	/**
 	 * Loads sequences into instances. In case of any error,
@@ -168,12 +168,18 @@ public class NeedlemanWunschTrace extends PairwiseAlignmentAlgorithmTrace
 	 */
 	protected void computeMatrix () throws IncompatibleScoringSchemeException
 	{
-		int r, c, rows, cols, ins, del, sub;
+		int r;
+        int c;
+        int rows;
+        int cols;
+        double ins;
+        double del;
+        double sub;
 
-		rows = trace1.getSnapshots().size() + 1;
+        rows = trace1.getSnapshots().size() + 1;
 		cols = trace2.getSnapshots().size() + 1;
 
-		matrix = new int [rows][cols];
+		matrix = new double[rows][cols];
 
 		// initiate first row
 		matrix[0][0] = 0;
@@ -202,15 +208,15 @@ public class NeedlemanWunschTrace extends PairwiseAlignmentAlgorithmTrace
 		List<String[]> result = new ArrayList<>(generateHeaders());
 		List<String[]> optimalAlignment = buildOptimalAlignment();
 
-		List<Snapshot> snapshotsTrace1 = trace1.getSnapshots();
-		List<Snapshot> snapshotsTrace2 = trace2.getSnapshots();
+		List<Snapshot<T>> snapshotsTrace1 = trace1.getSnapshots();
+		List<Snapshot<T>> snapshotsTrace2 = trace2.getSnapshots();
 
 		int i = 0;
 		for(String[] row : optimalAlignment){
 			List<String> updatedRow = new ArrayList<>();
 
 			if(i<snapshotsTrace1.size()) {
-				Snapshot snp1 = snapshotsTrace1.get(i);
+				Snapshot<T> snp1 = snapshotsTrace1.get(i);
 				updatedRow.add(String.valueOf(snp1.getTimestamp()));
 				updatedRow.addAll(snp1.getValues());
 			} else {
@@ -220,7 +226,7 @@ public class NeedlemanWunschTrace extends PairwiseAlignmentAlgorithmTrace
 			}
 
 			if(i<snapshotsTrace2.size()) {
-				Snapshot snp2 = snapshotsTrace2.get(i);
+				Snapshot<T> snp2 = snapshotsTrace2.get(i);
 				updatedRow.add(String.valueOf(snp2.getTimestamp()));
 				updatedRow.addAll(snp2.getValues());
 			} else {
@@ -268,92 +274,8 @@ public class NeedlemanWunschTrace extends PairwiseAlignmentAlgorithmTrace
 		return result;
 	}
 
-	/**
-	 * Builds an optimal global alignment between the loaded sequences. Before it is
-	 * executed, the dynamic programming matrix must already have been computed by
-	 * the <CODE>computeMatrix</CODE> method.
-	 *
-	 * @return an optimal global alignment between the loaded sequences
-	 * @throws IncompatibleScoringSchemeException If the scoring scheme
-	 * is not compatible with the loaded sequences.
-	 * @see #computeMatrix
-	 */
-	protected List<String[]> buildOptimalAlignment ()
-		throws IncompatibleScoringSchemeException
-	{
-		List<String[]> partialResult = new ArrayList<>();
-		List<Snapshot> snapshotsTrace1 = trace1.getSnapshots();
-		List<Snapshot> snapshotsTrace2 = trace2.getSnapshots();
-
-		int	r, c, sub;
-
-		// start at the last row, last column
-		r = matrix.length - 1;
-		c = matrix[r].length - 1;
-
-		while ((r > 0) || (c > 0))
-		{
-			List<String> row = new ArrayList<>();
-			if (c > 0) {
-				if (matrix[r][c] == matrix[r][c - 1] + scoreInsertion()) {
-					// insertion was used
-					for (int i = 0; i < snapshotsTrace1.get(0).getValues().size() + 1; i++) {
-						row.add(GAP_CHARACTER);
-					}
-					// row.add(EMPTY_SPACE);
-					row.add(String.valueOf(snapshotsTrace2.get(c-1).getTimestamp()));
-					row.addAll(snapshotsTrace2.get(c-1).getValues());
-					c = c - 1;
-					row.add(INSERTION);
-
-					// skip to the next iteration
-					partialResult.add(0, row.toArray(new String[row.size()]));
-					continue;
-				}
-			}
-
-			if ((r > 0) && (c > 0))
-			{
-				sub = scoreSubstitution(trace1.snapshotAt(r-1), trace2.snapshotAt(c-1));
-
-				if (matrix[r][c] == matrix[r-1][c-1] + sub)
-				{
-					// substitution was used
-					row.add(String.valueOf(snapshotsTrace1.get(r-1).getTimestamp()));
-					row.addAll(snapshotsTrace1.get(r-1).getValues());
-					if (trace1.snapshotAt(r-1).equalsAlignment(trace2.snapshotAt(c-1), this.scoring.getTolerance())){
-						// row.add(MATCH_CHARACTER);
-						row.add(String.valueOf(snapshotsTrace2.get(c-1).getTimestamp()));
-						row.addAll(snapshotsTrace2.get(c-1).getValues());
-						row.add(MATCH);
-					} else {
-						// row.add(EMPTY_SPACE);
-						row.add(String.valueOf(snapshotsTrace2.get(c-1).getTimestamp()));
-						row.addAll(snapshotsTrace2.get(c-1).getValues());
-						row.add(MISMATCH);
-					}
-					r = r - 1; c = c - 1;
-
-					// skip to the next iteration
-					partialResult.add(0, row.toArray(new String[row.size()]));
-					continue;
-				}
-			}
-
-			// must be a deletion
-			row.add(String.valueOf(snapshotsTrace1.get(r-1).getTimestamp()));
-			row.addAll(snapshotsTrace1.get(r-1).getValues());
-			// row.add(EMPTY_SPACE);
-			for(int i = 0; i < snapshotsTrace2.get(0).getValues().size() + 1; i++){
-				row.add(GAP_CHARACTER);
-			}
-			row.add(DELETION);
-			r = r - 1;
-			partialResult.add(0, row.toArray(new String[row.size()]));
-		}
-
-		return partialResult;
-	}
+	protected abstract List<String[]> buildOptimalAlignment ()
+			throws IncompatibleScoringSchemeException;
 
 	/**
 	 * Computes the score of the best global alignment between the two sequences using the
@@ -365,18 +287,25 @@ public class NeedlemanWunschTrace extends PairwiseAlignmentAlgorithmTrace
 	 * @throws IncompatibleScoringSchemeException If the scoring scheme is not compatible
 	 * with the loaded sequences.
 	 */
-	protected int computeScore () throws IncompatibleScoringSchemeException
+	protected double computeScore () throws IncompatibleScoringSchemeException
 	{
-		int[]	array;
-		int		r, c, rows, cols, tmp, ins, del, sub;
+		double[] array;
+		int		r;
+        int c;
+        int rows;
+        int cols;
+        double tmp;
+        double ins;
+        double del;
+        double sub;
 
-		rows = trace1.getSnapshots().size();
+        rows = trace1.getSnapshots().size();
 		cols = trace2.getSnapshots().size();
 
 		if (rows <= cols)
 		{
 			// goes columnwise
-			array = new int [rows];
+			array = new double[rows];
 
 			// initiate first column
 			array[0] = 0;
@@ -412,7 +341,7 @@ public class NeedlemanWunschTrace extends PairwiseAlignmentAlgorithmTrace
 		else
 		{
 			// goes rowwise
-			array = new int [cols];
+			array = new double[cols];
 
 			// initiate first row
 			array[0] = 0;

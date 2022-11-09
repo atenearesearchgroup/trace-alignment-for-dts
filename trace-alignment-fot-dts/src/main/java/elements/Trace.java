@@ -5,22 +5,25 @@ import java.util.*;
 /**
  * @author Paula Munoz
  */
-public class Trace {
-    private final List<Snapshot> snapshots;
+public abstract class Trace<T> {
+    private final List<Snapshot<T>> snapshots;
 
     public Trace(List<String[]> fullMatrix) {
         this.snapshots = new LinkedList<>();
         String[] headers = fullMatrix.get(0);
+        String[] toleranceValues = fullMatrix.get(1);
+
         // Find the timestamp headers only to consider the columns to the right of it
         int startingColumn = Arrays.asList(headers).indexOf("timestamp") + 1;
 
+        // List of attributes starting with the headers
         Attribute[] attributes = new Attribute[headers.length - startingColumn];
         for (int i = startingColumn; i < headers.length; i++) {
             double max = getMax(fullMatrix, i);
-            attributes[i-startingColumn] = new Attribute(max, headers[i]);
+            attributes[i-startingColumn] = new Attribute(max, headers[i], Double.parseDouble(toleranceValues[i]));
         }
 
-        for (String[] row : fullMatrix.subList(1, fullMatrix.size())) {
+        for (String[] row : fullMatrix.subList(2, fullMatrix.size())) {
             Object[] values = new Object[row.length - startingColumn];
             for (int i = startingColumn; i < row.length; i++) {
                 if(isDouble(row[i])){
@@ -31,8 +34,8 @@ public class Trace {
                     values[i-startingColumn] = row[i];
                 }
             }
-            snapshots.add(new Snapshot(attributes, values,
-                    Long.parseLong(row[startingColumn-1])));
+            snapshots.add(createSnapshot(attributes, values,
+                    Float.parseFloat(row[startingColumn-1])));
         }
     }
 
@@ -45,7 +48,7 @@ public class Trace {
         return true;
     }
 
-    public List<Snapshot> getSnapshots() {
+    public List<Snapshot<T>> getSnapshots() {
         return snapshots;
     }
 
@@ -66,7 +69,9 @@ public class Trace {
         return max;
     }
 
-    public Snapshot snapshotAt(int i) {
+    public Snapshot<T> snapshotAt(int i) {
         return snapshots.get(i);
     }
+
+    public abstract Snapshot<T> createSnapshot(Attribute[] attributes, Object[] values, float timestamp);
 }

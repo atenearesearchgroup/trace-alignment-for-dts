@@ -43,18 +43,18 @@ import elements.Snapshot;
  *
  * This is a modified version from the Original NeoBio Library to use for trace alignment in a DTs context.
  */
-public abstract class ScoringSchemeTrace
+public abstract class ScoringSchemeTrace<T>
 {
-	private final int match;
-	private final int mismatch;
-	private final int gap;
+	private final double match;
+	private final double mismatch;
+	private final double gap;
 	private final double tolerance;
 
 	/**
 	 * Creates a new instance of an scoring scheme. The case of characters is significant
 	 * when subsequently computing their score.
 	 */
-	public ScoringSchemeTrace(int match, int mismatch, int gap, double tolerance)
+	public ScoringSchemeTrace(double match, double mismatch, double gap, double tolerance)
 	{
 		this.match = match;
 		this.mismatch = mismatch;
@@ -72,7 +72,7 @@ public abstract class ScoringSchemeTrace
 	 * @return score of substitution of <CODE>a</CODE> for <CODE>b</CODE>
 	 * @throws IncompatibleScoringSchemeException if this substitution is not defined
 	 */
-	public abstract int scoreSubstitution (Snapshot a, Snapshot b)
+	public abstract double scoreSubstitution (Snapshot<T> a, Snapshot<T> b)
 		throws IncompatibleScoringSchemeException;
 
 	/**
@@ -83,7 +83,7 @@ public abstract class ScoringSchemeTrace
 	 * @throws IncompatibleScoringSchemeException if character is not recognised by this
 	 * scoring scheme
 	 */
-	public abstract int scoreInsertion()
+	public abstract double scoreInsertion()
 		throws IncompatibleScoringSchemeException;
 
 	/**
@@ -94,7 +94,7 @@ public abstract class ScoringSchemeTrace
 	 * @throws IncompatibleScoringSchemeException if character is not recognised by this
 	 * scoring scheme
 	 */
-	public abstract int scoreDeletion()
+	public abstract double scoreDeletion()
 		throws IncompatibleScoringSchemeException;
 
 	/**
@@ -103,7 +103,7 @@ public abstract class ScoringSchemeTrace
 	 *
 	 * @return maximum absolute score that can be returned
 	 */
-	public abstract int maxAbsoluteScore ();
+	public abstract double maxAbsoluteScore ();
 
 	/**
 	 * Returns <CODE>true</CODE> if this scoring scheme supports partial matches,
@@ -117,15 +117,15 @@ public abstract class ScoringSchemeTrace
 	 */
 	public abstract boolean isPartialMatchSupported();
 
-	public int getMatch() {
+	public double getMatch() {
 		return match;
 	}
 
-	public int getMismatch() {
+	public double getMismatch() {
 		return mismatch;
 	}
 
-	public int getGap() {
+	public double getGap() {
 		return gap;
 	}
 

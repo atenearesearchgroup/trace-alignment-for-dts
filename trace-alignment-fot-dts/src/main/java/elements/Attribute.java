@@ -6,13 +6,18 @@ import java.util.Objects;
  */
 public class Attribute {
     private final double maxValue;
+    private final double tolerance;
     private final String name;
 
-    public Attribute(double maxValue, String name){
+    public Attribute(double maxValue, String name, double tolerance){
         this.name = name;
         this.maxValue = maxValue;
+        this.tolerance = tolerance;
     }
 
+    public double getTolerance() {
+        return tolerance;
+    }
     public String getName(){
         return name;
     }
