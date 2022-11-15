@@ -102,7 +102,7 @@ public abstract class NeedlemanWunschTrace<T> extends PairwiseAlignmentAlgorithm
 	 * between the firsts i characters of <CODE>seq1</CODE> and j characters of
 	 * <CODE>seq2</CODE>.
 	 */
-	protected double[][] matrix;
+	protected Pair[][] matrix;
 
 	/**
 	 * Loads sequences into instances. In case of any error,
@@ -179,27 +179,30 @@ public abstract class NeedlemanWunschTrace<T> extends PairwiseAlignmentAlgorithm
         rows = trace1.getSnapshots().size() + 1;
 		cols = trace2.getSnapshots().size() + 1;
 
-		matrix = new double[rows][cols];
+		matrix = new Pair[rows][cols];
 
 		// initiate first row
-		matrix[0][0] = 0;
-		for (c = 1; c < cols; c++)
-			matrix[0][c] = matrix[0][c-1] + scoreInsertion(); // c
+		matrix[0][0] = new Pair(0, Action.Sub);
+		for (c = 1; c < cols; c++) {
+			matrix[0][c] = new Pair(matrix[0][c - 1].value + scoreInsertion(), Action.Ins);
+		}
 
 		// calculates the similarity matrix (row-wise)
 		for (r = 1; r < rows; r++)
 		{
 			// initiate first column
-			matrix[r][0] = matrix[r-1][0] + scoreDeletion(); // r
+			matrix[r][0] = new Pair(matrix[r-1][0].value + scoreDeletion(), Action.Del);
 
 			for (c = 1; c < cols; c++)
 			{
-				ins = matrix[r][c-1] + scoreInsertion();
-				sub = matrix[r-1][c-1] + scoreSubstitution(trace1.snapshotAt(r-1), trace2.snapshotAt(c-1));
-				del = matrix[r-1][c] + scoreDeletion();
+				ins = matrix[r][c-1].value + scoreInsertion();
+				sub = matrix[r-1][c-1].value + scoreSubstitution(trace1.snapshotAt(r-1), trace2.snapshotAt(c-1));
+				del = matrix[r-1][c].value + scoreDeletion();
 
 				// choose the greatest
-				matrix[r][c] = max (ins, sub, del);
+				matrix[r][c] = max(new Pair(sub, Action.Sub)
+								, new Pair(ins, Action.Ins)
+								, new Pair(del, Action.Del));
 			}
 		}
 	}

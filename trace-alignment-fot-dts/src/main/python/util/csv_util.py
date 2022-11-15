@@ -9,9 +9,9 @@ def get_reader(filepath: str, delim: str):
     return file, reader
 
 
-def get_writer(filepath: str, delim: str):
+def get_writer(filepath: str, delim: str, write_mode: str):
     """It returns the file handler and a csv writer using the input delimiter."""
-    file = open(filepath, 'w', newline='')
+    file = open(filepath, write_mode, newline='')
     writer = csv.writer(file, delimiter=delim, dialect='excel')
     return file, writer
 
@@ -31,6 +31,6 @@ def process_timestamp(path: str, delim: str, position: int):
 
     file_r.close()
 
-    file_w, writer = get_writer(path, delim)
+    file_w, writer = get_writer(path, delim, 'w')
     writer.writerows(output)
     file_w.close()

@@ -14,7 +14,7 @@ public abstract class Trace<T> {
         String[] toleranceValues = fullMatrix.get(1);
 
         // Find the timestamp headers only to consider the columns to the right of it
-        int startingColumn = Arrays.asList(headers).indexOf("timestamp") + 1;
+        int startingColumn = Arrays.asList(headers).indexOf("timestamp(s)") + 1;
 
         // List of attributes starting with the headers
         Attribute[] attributes = new Attribute[headers.length - startingColumn];

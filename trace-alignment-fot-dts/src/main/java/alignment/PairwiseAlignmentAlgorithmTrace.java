@@ -452,6 +452,29 @@ public abstract class PairwiseAlignmentAlgorithmTrace
 	}
 
 	/**
+	 * Helper method to compute the the greater of three values.
+	 *
+	 * @param v1 first value
+	 * @param v2 second value
+	 * @param v3 third value
+	 * @return the larger of <CODE>v1</CODE>, <CODE>v2</CODE> and <CODE>v3</CODE>
+	 */
+	protected final Pair max (Pair v1, Pair v2, Pair v3)
+	{
+		if(v1.value >= v2.value){
+			if(v1.value >= v3.value){
+				return v1;
+			} else {
+				return v3;
+			}
+		} else if(v2.value >= v3.value){
+			return v2;
+		} else {
+			return v3;
+		}
+	}
+
+	/**
 	 * Helper method to compute the the greater of four values.
 	 *
 	 * @param v1 first value

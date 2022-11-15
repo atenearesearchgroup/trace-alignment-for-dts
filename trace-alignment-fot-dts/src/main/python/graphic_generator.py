@@ -1,37 +1,16 @@
 import os
 import sys
+
 import matplotlib.pyplot as plt
-import numpy as np
-import pandas
 import pandas as pd
 import seaborn as sns
 
-
-def _clean_df(df: pandas.DataFrame, columns):
-    cleaned_df = pandas.DataFrame()
-    for c in columns:
-        cleaned_df.insert(0, c, df.loc[:, c], True)
-
-    for name, _ in cleaned_df.iteritems():
-        cleaned_df[name].replace(' ', np.nan, inplace=True)
-        cleaned_df.dropna(subset=[name], inplace=True)
-        cleaned_df[name].update(pd.to_numeric(cleaned_df[name], errors='coerce'))
-
-    return cleaned_df
+from src.main.python.util.dataframe_util import clean_df
 
 
-if __name__ == "__main__":
+def generate_graphic(path: str, parameter_of_interest: str):
     # Uncomment to call from Java
-    alignment = pd.read_csv(str(sys.argv[1]))
-    parameter_of_interest = str(sys.argv[2])
-
-    # # Uncomment to call from this script
-    # # 1.- Path to output csv files
-    # resources_path = os.path.join(os.getcwd(), os.pardir) + "\\resources\\output\\lift\\"
-    # # 2.- Name of the input aligned file
-    # alignment = pd.read_csv(resources_path + "bajarSubir4plantas1bajarSubir4plantas2-0.05.csv")
-    # 3.- Dimension to plot against time
-    # parameter_of_interest = "AngleZ(deg)"
+    alignment = pd.read_csv(path)
 
     # Columns of interest
     pt_or_timestamp = "PTor-timestamp"
@@ -45,8 +24,8 @@ if __name__ == "__main__":
     dt_al_interest = "DTal-" + parameter_of_interest
 
     # Separate and clean the dataframe for plotting
-    selected_pt = _clean_df(alignment, [pt_or_timestamp, pt_or_interest])
-    selected_dt = _clean_df(alignment, [dt_or_timestamp, dt_or_interest])
+    selected_pt = clean_df(alignment, [pt_or_timestamp, pt_or_interest])
+    selected_dt = clean_df(alignment, [dt_or_timestamp, dt_or_interest])
 
     # Set a custom figure size
     plt.figure(figsize=(15, 6))
@@ -86,5 +65,16 @@ if __name__ == "__main__":
     ax.legend()
 
     # Show the graphic
-    plt.savefig(sys.argv[1].replace(".csv", "") + ".pdf")
-    plt.show()
+    plt.savefig(path.replace(".csv", "") + ".pdf")
+    # plt.show()
+
+
+if __name__ == "__main__":
+    # 1.- Path to output csv files
+    resources_path = os.path.join(os.getcwd(), os.pardir) + "\\resources\\output\\lift\\"
+    # 2.- Name of the input aligned file
+    file_path = resources_path + "Bajada_4_0_4Bajada_4_0_4_01-0.2.csv"
+    # 3.- Dimension to plot against time
+    param_of_interest = "accel(m/s2)"
+
+    generate_graphic(file_path, param_of_interest)

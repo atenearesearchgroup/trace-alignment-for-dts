@@ -1,5 +1,6 @@
 package alignment.tolerance;
 
+import alignment.Action;
 import alignment.IncompatibleScoringSchemeException;
 import alignment.NeedlemanWunschTrace;
 import elements.Snapshot;
@@ -27,7 +28,6 @@ public class NDWTolerance extends NeedlemanWunschTrace<Boolean> {
 
         int	r;
         int c;
-        double sub;
 
         // start at the last row, last column
         r = matrix.length - 1;
@@ -37,7 +37,7 @@ public class NDWTolerance extends NeedlemanWunschTrace<Boolean> {
         {
             List<String> row = new ArrayList<>();
             if (c > 0) {
-                if (matrix[r][c] == matrix[r][c - 1] + scoreInsertion()) {
+                if (matrix[r][c].action.equals(Action.Ins)) {
                     // insertion was used
                     for (int i = 0; i < snapshotsTrace1.get(0).getValues().size() + 1; i++) {
                         row.add(GAP_CHARACTER);
@@ -56,9 +56,7 @@ public class NDWTolerance extends NeedlemanWunschTrace<Boolean> {
 
             if ((r > 0) && (c > 0))
             {
-                sub = scoreSubstitution(trace1.snapshotAt(r-1), trace2.snapshotAt(c-1));
-
-                if (matrix[r][c] == matrix[r-1][c-1] + sub)
+                if (matrix[r][c].action.equals(Action.Sub))
                 {
                     // substitution was used
                     row.add(String.valueOf(snapshotsTrace1.get(r-1).getTimestamp()));

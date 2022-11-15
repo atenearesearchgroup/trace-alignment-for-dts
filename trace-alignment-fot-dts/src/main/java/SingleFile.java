@@ -15,23 +15,26 @@ import java.util.List;
  * @author Paula Munoz
  */
 
-public class Main {
+public class SingleFile {
     private static final String CURRENT_DIR = System.getProperty("user.dir") + "/trace-alignment-fot-dts";
     private static final String INPUT_DIR = "/src/main/resources/input/";
     private static final String OUTPUT_DIR = "/src/main/resources/output/";
 
     public static void main(String[] args) throws Exception {
         String inputPath = CURRENT_DIR + INPUT_DIR;
-        String inputNxj = inputPath + "lift\\mondragon1\\";
+        String inputNxj = inputPath + "lift\\";
 
         String pythonScript = CURRENT_DIR + "\\src\\main\\python\\" + "graphic_generator.py";
 
-        String DTFile = "bajarSubir4plantas_dt.csv";
-        String PTFile = "bajarSubir4plantas_pt.csv";
+        String DTPath = inputNxj + "\\04-simulation\\";
+        String PTPath = inputNxj + "\\03-derived_values\\";
+
+        String DTFile = "Bajada_4_0_4.csv";
+        String PTFile = "Bajada_4_0_4_02.csv";
         double tolerance = 0.5;
 
-        List<String[]> seqDT = CSVUtil.readAll(inputNxj + DTFile, ',');
-        List<String[]> seqPT = CSVUtil.readAll(inputNxj + PTFile, ',');
+        List<String[]> seqDT = CSVUtil.readAll(DTPath + DTFile, ',');
+        List<String[]> seqPT = CSVUtil.readAll(PTPath+ PTFile, ',');
 
         // Alignment based on tolerance equivalence
         //Object[] alignmentResults = getToleranceAlignment(seqDT, seqPT, tolerance);
@@ -46,7 +49,7 @@ public class Main {
                 ".csv";
         CSVUtil.writeAll(alignment, filename);
 
-        String paramOfInterest = "acceleration";
+        String paramOfInterest = "accel(m/s2)";
         Runtime.getRuntime().exec("python \"" + pythonScript + "\" \"" + filename + "\" " + paramOfInterest);
     }
 
@@ -56,7 +59,7 @@ public class Main {
         ToleranceEquivalenceTrace tracePT = new ToleranceEquivalenceTrace(seqPT);
         nw.loadSequences(traceDT, tracePT);
 
-        ScoringDistanceTolerance scoringDistance = new ScoringDistanceTolerance(1, -2, -1, tolerance);
+        ScoringDistanceTolerance scoringDistance = new ScoringDistanceTolerance(1, -2, 0, tolerance);
         nw.setScoringScheme(scoringDistance);
         return new Object[] {nw.getPairwiseAlignment(), nw.getScore()};
     }
@@ -67,7 +70,7 @@ public class Main {
         DistanceEquivalenceTrace tracePT = new DistanceEquivalenceTrace(seqPT);
         nw.loadSequences(traceDT, tracePT);
 
-        ScoringDistanceDistance scoringDistance = new ScoringDistanceDistance(1, -1, 0.2, tolerance);
+        ScoringDistanceDistance scoringDistance = new ScoringDistanceDistance(1, 0, 0.1, tolerance);
         nw.setScoringScheme(scoringDistance);
         return new Object[] {nw.getPairwiseAlignment(), nw.getScore()};
     }

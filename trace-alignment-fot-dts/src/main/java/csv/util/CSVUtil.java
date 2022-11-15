@@ -5,7 +5,9 @@ import com.opencsv.exceptions.CsvException;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * @author Paula Munoz
@@ -25,6 +27,11 @@ public class CSVUtil {
     public static String[] listFileNamesInDirectory(String path, String extension){
         File f = new File(path);
         return f.list(getFilterByExtension(extension));
+    }
+
+    public static String[] filterFileNamesInDirectory(String path, String extension, String pattern){
+        String[] allFiles = listFileNamesInDirectory(path, extension);
+        return Arrays.stream(allFiles).filter(c -> c.startsWith(pattern)).toArray(String[]::new);
     }
 
     // READER METHODS
