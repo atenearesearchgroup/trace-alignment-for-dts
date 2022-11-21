@@ -31,6 +31,7 @@
 
 package alignment;
 
+import csv.util.CSVUtil;
 import elements.Attribute;
 import elements.Snapshot;
 import elements.Trace;
@@ -146,13 +147,18 @@ public abstract class NeedlemanWunschTrace<T> extends PairwiseAlignmentAlgorithm
 	 * @see #buildOptimalAlignment
 	 */
 	protected List<String[]> computePairwiseAlignment ()
-		throws IncompatibleScoringSchemeException
+			throws Exception
 	{
 		// compute the matrix
 		computeMatrix ();
 
 		// build and return an optimal global alignment
 		List<String[]> alignment = buildCSVFile ();
+
+		String CURRENT_DIR = System.getProperty("user.dir") + "\\trace-alignment-fot-dts";
+		String OUTPUT_DIR = "\\src\\main\\resources\\output\\";
+		String output_file_path = CURRENT_DIR + OUTPUT_DIR + "lift\\";
+		CSVUtil.writeAll(buildMatrixFile(), output_file_path + "matrix.csv");
 
 		// allow the matrix to be garbage collected
 		matrix = null;
@@ -182,27 +188,30 @@ public abstract class NeedlemanWunschTrace<T> extends PairwiseAlignmentAlgorithm
 		matrix = new Pair[rows][cols];
 
 		// initiate first row
-		matrix[0][0] = new Pair(0, Action.Sub);
+		matrix[0][0] = new Pair(0, Action.Match);
 		for (c = 1; c < cols; c++) {
-			matrix[0][c] = new Pair(matrix[0][c - 1].value + scoreInsertion(), Action.Ins);
+			matrix[0][c] = new Pair(matrix[0][c - 1].value + scoreInsertion(), Action.Insertion);
 		}
 
 		// calculates the similarity matrix (row-wise)
 		for (r = 1; r < rows; r++)
 		{
 			// initiate first column
-			matrix[r][0] = new Pair(matrix[r-1][0].value + scoreDeletion(), Action.Del);
+			matrix[r][0] = new Pair(matrix[r-1][0].value + scoreDeletion(), Action.Deletion);
 
 			for (c = 1; c < cols; c++)
 			{
+				double partialSub = scoreSubstitution(trace1.snapshotAt(r-1), trace2.snapshotAt(c-1));
+				sub = matrix[r-1][c-1].value + partialSub;
 				ins = matrix[r][c-1].value + scoreInsertion();
-				sub = matrix[r-1][c-1].value + scoreSubstitution(trace1.snapshotAt(r-1), trace2.snapshotAt(c-1));
 				del = matrix[r-1][c].value + scoreDeletion();
 
+				Action actionSub = partialSub > 0 ? Action.Match : Action.Mistmatch;
+
 				// choose the greatest
-				matrix[r][c] = max(new Pair(sub, Action.Sub)
-								, new Pair(ins, Action.Ins)
-								, new Pair(del, Action.Del));
+				matrix[r][c] = max(new Pair(sub, actionSub)
+								, new Pair(ins, Action.Insertion)
+								, new Pair(del, Action.Deletion), 0.001);
 			}
 		}
 	}
@@ -242,6 +251,20 @@ public abstract class NeedlemanWunschTrace<T> extends PairwiseAlignmentAlgorithm
 			updatedRow.addAll(Arrays.asList(row));
 			result.add(updatedRow.toArray(new String[0]));
 			i++;
+		}
+
+		return result;
+	}
+
+	public List<String[]> buildMatrixFile() throws IncompatibleScoringSchemeException {
+		List<String[]> result = new ArrayList<>(generateHeaders());
+
+		for (Pair[] pairs : matrix) {
+			List<String> row = new ArrayList<>();
+			for (int j = 0; j < pairs.length; j++) {
+				row.add(pairs[j].toString());
+			}
+			result.add(row.toArray(new String[0]));
 		}
 
 		return result;

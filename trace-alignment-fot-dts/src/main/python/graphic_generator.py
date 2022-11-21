@@ -37,6 +37,7 @@ def generate_graphic(path: str, parameter_of_interest: str):
 
     # Plot line plot using dataframe columns
     # Physical Twin trajectory
+    # selected_pt[pt_or_interest] = selected_pt[pt_or_interest].apply(lambda x: x - 3)
     sns.lineplot(data=selected_pt, label="PT", x=pt_or_timestamp, y=pt_or_interest,
                  marker='o')
     # Digital Twin trajectory

@@ -15,7 +15,7 @@ public class DistanceEquivalenceSnapshot extends Snapshot<Double> {
             if(attribute.getMaxValue() > 0){
                 double difference = Math.abs((Double) b.getAttributes().get(attribute)
                         - (Double) this.getAttributes().get(attribute));
-                if(difference > attribute.getTolerance()){
+                if(difference >= attribute.getTolerance()){
                     sum += 0;
                 } else {
                     sum += (1-difference/attribute.getTolerance());

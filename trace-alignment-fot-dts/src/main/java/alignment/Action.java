@@ -1,3 +1,3 @@
 package alignment;
 
-public enum Action {Sub, Ins, Del}
+public enum Action {Match, Mistmatch, Insertion, Deletion}

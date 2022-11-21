@@ -274,7 +274,7 @@ public abstract class PairwiseAlignmentAlgorithmTrace
 	 * @see #computePairwiseAlignment
 	 */
 	public List<String[]> getPairwiseAlignment ()
-		throws IncompatibleScoringSchemeException
+			throws Exception
 	{
 		if (!sequences_loaded)
 			throw new IllegalStateException ("Sequences have not been loaded.");
@@ -370,7 +370,7 @@ public abstract class PairwiseAlignmentAlgorithmTrace
 	 * @see #getPairwiseAlignment
 	 */
 	protected abstract List<String[]> computePairwiseAlignment ()
-		throws IncompatibleScoringSchemeException;
+			throws Exception;
 
 	/**
 	 * Subclasses must implement this method to compute the score of the alignment between
@@ -459,15 +459,15 @@ public abstract class PairwiseAlignmentAlgorithmTrace
 	 * @param v3 third value
 	 * @return the larger of <CODE>v1</CODE>, <CODE>v2</CODE> and <CODE>v3</CODE>
 	 */
-	protected final Pair max (Pair v1, Pair v2, Pair v3)
+	protected final Pair max (Pair v1, Pair v2, Pair v3, double precision)
 	{
-		if(v1.value >= v2.value){
-			if(v1.value >= v3.value){
+		if(v1.value >= (v2.value-precision)){
+			if(v1.value >= (v3.value-precision)){
 				return v1;
 			} else {
 				return v3;
 			}
-		} else if(v2.value >= v3.value){
+		} else if(v2.value >= (v3.value-precision)){
 			return v2;
 		} else {
 			return v3;

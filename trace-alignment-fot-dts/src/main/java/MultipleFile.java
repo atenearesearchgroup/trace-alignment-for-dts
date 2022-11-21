@@ -35,8 +35,8 @@ public class MultipleFile {
 
         String dTFile = "Bajada_4_0_4.csv";
 
-        for(String pTFile : CSVUtil.filterFileNamesInDirectory(pTPath, ".csv", "Bajada_4_0_4_")){
-            for(double gap : DoubleStream.iterate(0.0, n -> n+0.1).limit(6).toArray()){
+        for(String pTFile : CSVUtil.filterFileNamesInDirectory(pTPath, ".csv", "Bajada_4_0_4_01")){
+            for(double gap : DoubleStream.iterate(0.0, n -> n-0.1).limit(3).toArray()){
                 List<String[]> seqDT = CSVUtil.readAll(dTPath + dTFile, ',');
                 List<String[]> seqPT = CSVUtil.readAll(pTPath+ pTFile, ',');
 
@@ -67,9 +67,7 @@ public class MultipleFile {
     }
 
     public static Object[] getDistanceAlignment(List<String[]> seqDT, List<String[]> seqPT, double tolerance,
-                                                double gap) throws IncompatibleScoringSchemeException,
-            IOException,
-            InvalidSequenceException {
+                                                double gap) throws Exception {
         NDWDistance nw = new NDWDistance();
         DistanceEquivalenceTrace traceDT = new DistanceEquivalenceTrace(seqDT);
         DistanceEquivalenceTrace tracePT = new DistanceEquivalenceTrace(seqPT);

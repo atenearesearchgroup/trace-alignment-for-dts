@@ -8,4 +8,8 @@ public class Pair {
         this.value = value;
         this.action = action;
     }
+
+    public String toString(){
+        return "[" + value + ", " + action.toString() + "]";
+    }
 }

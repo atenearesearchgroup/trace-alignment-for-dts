@@ -32,7 +32,6 @@ public class NDWDistance extends NeedlemanWunschTrace<Double> {
 
         int	r;
         int c;
-        double sub;
 
         // start at the last row, last column
         r = matrix.length - 1;
@@ -42,7 +41,7 @@ public class NDWDistance extends NeedlemanWunschTrace<Double> {
         {
             List<String> row = new ArrayList<>();
             if (c > 0) {
-                if (matrix[r][c].action.equals(Action.Ins)) {
+                if (matrix[r][c].action.equals(Action.Insertion)) {
                     // insertion was used
                     for (int i = 0; i < snapshotsTrace1.get(0).getValues().size() + 1; i++) {
                         row.add(GAP_CHARACTER);
@@ -61,14 +60,14 @@ public class NDWDistance extends NeedlemanWunschTrace<Double> {
 
             if ((r > 0) && (c > 0))
             {
-                if (matrix[r][c].action.equals(Action.Sub))
+                if (matrix[r][c].action.equals(Action.Match) || matrix[r][c].action.equals(Action.Mistmatch))
                 {
                     // substitution was used
                     row.add(String.valueOf(snapshotsTrace1.get(r-1).getTimestamp()));
                     row.addAll(snapshotsTrace1.get(r-1).getValues());
                     row.add(String.valueOf(snapshotsTrace2.get(c-1).getTimestamp()));
                     row.addAll(snapshotsTrace2.get(c-1).getValues());
-                    if(matrix[r][c].value > 0){
+                    if(matrix[r][c].action.equals(Action.Match)){
                         row.add(MATCH);
                     } else {
                         row.add(MISMATCH);

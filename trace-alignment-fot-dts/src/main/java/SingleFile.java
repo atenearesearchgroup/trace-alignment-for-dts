@@ -26,7 +26,7 @@ public class SingleFile {
 
         String pythonScript = CURRENT_DIR + "\\src\\main\\python\\" + "graphic_generator.py";
 
-        String DTPath = inputNxj + "\\04-simulation\\";
+        String DTPath = inputNxj + "\\04.5-simulation\\";
         String PTPath = inputNxj + "\\03-derived_values\\";
 
         String DTFile = "Bajada_4_0_4.csv";
@@ -53,7 +53,7 @@ public class SingleFile {
         Runtime.getRuntime().exec("python \"" + pythonScript + "\" \"" + filename + "\" " + paramOfInterest);
     }
 
-    public static Object[] getToleranceAlignment(List<String[]> seqDT, List<String[]> seqPT, double tolerance) throws IncompatibleScoringSchemeException, IOException, InvalidSequenceException {
+    public static Object[] getToleranceAlignment(List<String[]> seqDT, List<String[]> seqPT, double tolerance) throws Exception {
         NDWTolerance nw = new NDWTolerance();
         ToleranceEquivalenceTrace traceDT = new ToleranceEquivalenceTrace(seqDT);
         ToleranceEquivalenceTrace tracePT = new ToleranceEquivalenceTrace(seqPT);
@@ -64,13 +64,13 @@ public class SingleFile {
         return new Object[] {nw.getPairwiseAlignment(), nw.getScore()};
     }
 
-    public static Object[] getDistanceAlignment(List<String[]> seqDT, List<String[]> seqPT, double tolerance) throws IncompatibleScoringSchemeException, IOException, InvalidSequenceException {
+    public static Object[] getDistanceAlignment(List<String[]> seqDT, List<String[]> seqPT, double tolerance) throws Exception {
         NDWDistance nw = new NDWDistance();
         DistanceEquivalenceTrace traceDT = new DistanceEquivalenceTrace(seqDT);
         DistanceEquivalenceTrace tracePT = new DistanceEquivalenceTrace(seqPT);
         nw.loadSequences(traceDT, tracePT);
 
-        ScoringDistanceDistance scoringDistance = new ScoringDistanceDistance(1, 0, 0.1, tolerance);
+        ScoringDistanceDistance scoringDistance = new ScoringDistanceDistance(1, 0, -0.2, tolerance);
         nw.setScoringScheme(scoringDistance);
         return new Object[] {nw.getPairwiseAlignment(), nw.getScore()};
     }
