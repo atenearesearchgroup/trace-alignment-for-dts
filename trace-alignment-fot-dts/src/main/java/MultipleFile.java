@@ -34,9 +34,18 @@ public class MultipleFile {
         double tolerance = 0.5;
 
         String dTFile = "Bajada_4_0_4.csv";
+        String output_file_path = CURRENT_DIR + OUTPUT_DIR + "lift\\";
 
         for(String pTFile : CSVUtil.filterFileNamesInDirectory(pTPath, ".csv", "Bajada_4_0_4_01")){
-            for(double gap : DoubleStream.iterate(0.0, n -> n-0.1).limit(3).toArray()){
+            // Empty the distances file
+            String filename =  dTFile.substring(0, dTFile.length()-4)
+                    + pTFile.substring(0, pTFile.length()-4);
+
+            List<String[]> headers = new ArrayList<>();
+            headers.add(new String[]{"gap", "%matched", "frechet", "mean", "std"});
+            CSVUtil.writeAll(headers, output_file_path + filename + ".csv");
+
+            for(double gap : DoubleStream.iterate(-0.4, n -> n+0.1).limit(1).toArray()){
                 List<String[]> seqDT = CSVUtil.readAll(dTPath + dTFile, ',');
                 List<String[]> seqPT = CSVUtil.readAll(pTPath+ pTFile, ',');
 
@@ -48,20 +57,13 @@ public class MultipleFile {
 
                 System.out.println("Score " + tolerance + "=> " + score);
 
-                String output_file_path = CURRENT_DIR + OUTPUT_DIR + "lift\\";
-                String filename =  dTFile.substring(0, dTFile.length()-4)
-                        + pTFile.substring(0, pTFile.length()-4) + "-" + String.format("%.1f",gap) +
-                        ".csv";
-                CSVUtil.writeAll(alignment, output_file_path + filename);
-
-                // Empty the distances file
-                List<String[]> headers = new ArrayList<>();
-                headers.add(new String[]{"gap", "%matched", "frechet", "mean", "std"});
-                CSVUtil.writeAll(headers, output_file_path + filename.substring(0, filename.indexOf("-")) + ".csv");
+                String gapInformation =  "-" + String.format("%.1f",gap) + ".csv";
+                CSVUtil.writeAll(alignment, output_file_path + filename + gapInformation);
 
                 // Generate graphics and distance analysis
-                Runtime.getRuntime().exec("python \"" + pythonScript + "\" "
-                        + filename + " " + paramOfInterest + " \"" + output_file_path + "\"");
+                Process p = Runtime.getRuntime().exec("python \"" + pythonScript + "\" "
+                        + filename + gapInformation + " " + paramOfInterest + " \"" + output_file_path + "\"");
+                p.waitFor();
             }
         }
     }
